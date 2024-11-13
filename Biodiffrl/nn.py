@@ -50,6 +50,9 @@ class Controller_NN(nn.Module):
     
 class Critic_NN(nn.Module):
 
+    in_dims: int
+    out_dims: int
+    
     def setup(self):
         # Features means the output dimension
         self.linear1 = nn.Dense(features=400)
@@ -57,7 +60,7 @@ class Critic_NN(nn.Module):
         self.linear3 = nn.Dense(features=400)
         self.linear4 = nn.Dense(features=400)
         # The last layer will output the mean and logstd
-        self.linear5 = nn.Dense(features=1)
+        self.linear5 = nn.Dense(features=self.out_dims)
         
     
     def __call__(self, x):
@@ -72,3 +75,13 @@ class Critic_NN(nn.Module):
         x = self.linear5(x)
         # The last layer of the neural requires samping
         return -nn.relu(x)
+    
+    def init_parameters(self, key):
+        # Init the model
+        sub_key = jax.random.split(key,1)[0]
+        # The second parameter is the dommy input
+        params = self.init(key, jp.empty([1, self.in_dims]))
+        return params, sub_key
+    
+    def get_fn(self):
+        return lambda params, states: self.apply(params, states)
