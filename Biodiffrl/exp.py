@@ -6,7 +6,7 @@ import jax.numpy as jp
 
 # Register the Experience class as pytree
 @functools.partial(jax.tree_util.register_dataclass,
-                   data_fields=['states', 'next_states', 'actions', 'rewards'],
+                   data_fields=['states', 'next_states', 'actions', 'rewards', 'dones'],
                    meta_fields=[])
 @dataclass
 class experience(object):
@@ -14,14 +14,7 @@ class experience(object):
     next_states : jax.Array
     actions : jax.Array
     rewards : jax.Array
-    # dones: jax.Array
-    
-    # def __init__(self, state, next_state, action, reward):
-    #     self.state = state
-    #     self.next_state = next_state
-    #     self.action = action
-    #     self.reward = reward
-
+    dones   : jax.Array
 
 
 @functools.partial(jax.tree_util.register_dataclass,
@@ -45,10 +38,8 @@ class memory():
     def trim_fn(exp_pool_item, length):
         return exp_pool_item[:length]
     
-    @staticmethod
-    def sample_fn(exp_pool_item, index):
-        return exp_pool_item[index]
     
+    # Add exp
     staticmethod
     @functools.partial(jax.jit, static_argnames="settings")
     def add_exp(settings:memory_settings, exp_pool:experience, exp:experience):
@@ -56,7 +47,9 @@ class memory():
         exp.next_states = jp.reshape(exp.next_states,(-1, settings.state_num))
         exp.actions = jp.reshape(exp.actions, (-1, settings.action_num))
         exp.rewards = jp.reshape(exp.rewards, (-1, settings.reward_num))
+        exp.dones = jp.reshape(exp.dones, (-1, 1))
         
+        #TODO: Need to get ride of the if else
         if(exp_pool == None):
             exp_pool = exp
         else:
@@ -70,6 +63,11 @@ class memory():
         
         return exp_pool
         
+    # Sample 
+    @staticmethod
+    def sample_fn(exp_pool_item, index):
+        return exp_pool_item[index]
+        
     @staticmethod
     @functools.partial(jax.jit, static_argnames="batch_size")
     def sample(exp_pool, batch_size, key)->experience :
@@ -80,3 +78,29 @@ class memory():
             replace=False
         )
         return jax.tree.map(lambda x: memory.sample_fn(x, index), exp_pool)
+    
+    
+        
+    @staticmethod
+    # @jax.jit
+    def remove_done(exp_pool):
+        keeps = ~jp.concat(exp_pool.dones)
+        return jax.tree.map(lambda x: jp.compress(keeps, x, axis=0), exp_pool)
+    
+    # Replace the done experience with 
+    @staticmethod
+    def replace_done_init(exp_pool):
+    
+    
+    @staticmethod
+    @functools.partial(jax.jit, static_argnames="settings")
+    def init_pool(settings:memory_settings, init_fn, key):
+        keys = jax.random.split(key, settings.memory_size)
+        exp_pool = jax.vmap(init_fn)(keys)
+        return exp_pool
+    
+    
+        
+        
+        
+        
