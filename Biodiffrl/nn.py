@@ -75,6 +75,7 @@ class Critic_NN(nn.Module):
         x = self.linear5(x)
         # The last layer of the neural requires samping
         return -nn.relu(x)
+        # return x
     
     def init_parameters(self, key):
         # Init the model

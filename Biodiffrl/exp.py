@@ -41,7 +41,7 @@ class memory():
     
     # Add exp
     staticmethod
-    @functools.partial(jax.jit, static_argnames="settings")
+    # @functools.partial(jax.jit, static_argnames="settings")
     def add_exp(settings:memory_settings, exp_pool:experience, exp:experience):
         exp.states = jp.reshape(exp.states,(-1, settings.state_num))
         exp.next_states = jp.reshape(exp.next_states,(-1, settings.state_num))
@@ -69,7 +69,7 @@ class memory():
         return exp_pool_item[index]
         
     @staticmethod
-    @functools.partial(jax.jit, static_argnames="batch_size")
+    # @functools.partial(jax.jit, static_argnames="batch_size")
     def sample(exp_pool, batch_size, key)->experience :
         index = jax.random.choice(
             key,
@@ -90,7 +90,7 @@ class memory():
     # Replace the done experience with 
     @staticmethod
     def replace_done_init(exp_pool):
-    
+        pass
     
     @staticmethod
     @functools.partial(jax.jit, static_argnames="settings")
