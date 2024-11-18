@@ -93,7 +93,7 @@ class memory():
         pass
     
     @staticmethod
-    @functools.partial(jax.jit, static_argnames="settings")
+    # @functools.partial(jax.jit, static_argnames="settings")
     def init_pool(settings:memory_settings, init_fn, key):
         keys = jax.random.split(key, settings.memory_size)
         exp_pool = jax.vmap(init_fn)(keys)
