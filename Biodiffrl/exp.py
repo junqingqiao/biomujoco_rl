@@ -31,7 +31,7 @@ class memory_settings():
 class memory(): 
     
     @staticmethod
-    def append_fn(exp_item, exp_pool_item):
+    def push_fn(exp_item, exp_pool_item):
         return jp.concatenate([exp_item, exp_pool_item],axis=0)
     
     @staticmethod
@@ -53,7 +53,7 @@ class memory():
         if(exp_pool == None):
             exp_pool = exp
         else:
-            exp_pool = jax.tree.map(memory.append_fn, exp, exp_pool)
+            exp_pool = jax.tree.map(memory.push_fn, exp, exp_pool)
             
         len = exp_pool.states.shape[0]
         
@@ -75,8 +75,9 @@ class memory():
             key,
             jp.arange(exp_pool.states.shape[0]),
             shape = (batch_size,),
-            replace=False
+            replace=True
         )
+        # Repalce = True means reuse the sampled data
         return jax.tree.map(lambda x: memory.sample_fn(x, index), exp_pool)
     
     
