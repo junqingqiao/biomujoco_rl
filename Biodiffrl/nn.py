@@ -35,7 +35,7 @@ class Controller_NN(nn.Module):
         logstd = x[self.out_dims:]
         std = jp.exp(logstd)
         # samples = jp.clip(jax.random.normal(key)*std*0.3 + mean, -3, 3)
-        sample = nn.relu(jax.random.normal(key)*std*0.2 + mean)
+        sample = nn.relu(jax.random.normal(key)*std*0.1 + mean)
         mean = nn.relu(mean)
         return sample, mean, logstd
     
