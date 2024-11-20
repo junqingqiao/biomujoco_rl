@@ -12,10 +12,10 @@ class Controller_NN(nn.Module):
     
     def setup(self):
         # Features means the output dimension
-        self.linear1 = nn.Dense(features=400)
-        self.linear2 = nn.Dense(features=400)
-        self.linear3 = nn.Dense(features=400)
-        self.linear4 = nn.Dense(features=400)
+        self.linear1 = nn.Dense(features=512)
+        self.linear2 = nn.Dense(features=256)
+        self.linear3 = nn.Dense(features=512)
+        self.linear4 = nn.Dense(features=512)
         # The last layer will output the mean and logstd
         self.linear5 = nn.Dense(features=self.out_dims*2)
         
@@ -27,16 +27,17 @@ class Controller_NN(nn.Module):
         x = nn.relu(x)
         x = self.linear3(x)
         x = nn.relu(x)
-        x = self.linear4(x)
-        x = nn.relu(x)
+        # x = self.linear4(x)
+        # x = nn.relu(x)
         x = self.linear5(x)
         # The last layer of the neural requires samping
         mean = x[:self.out_dims]
         logstd = x[self.out_dims:]
         std = jp.exp(logstd)
         # samples = jp.clip(jax.random.normal(key)*std*0.3 + mean, -3, 3)
-        samples = jax.random.normal(key)*std*0.3 + mean
-        return samples, mean, logstd
+        sample = nn.relu(jax.random.normal(key)*std*0.2 + mean)
+        mean = nn.relu(mean)
+        return sample, mean, logstd
     
     def init_parameters(self, key):
         # Init the model
@@ -55,10 +56,10 @@ class Critic_NN(nn.Module):
     
     def setup(self):
         # Features means the output dimension
-        self.linear1 = nn.Dense(features=400)
-        self.linear2 = nn.Dense(features=400)
-        self.linear3 = nn.Dense(features=400)
-        self.linear4 = nn.Dense(features=400)
+        self.linear1 = nn.Dense(features=512)
+        self.linear2 = nn.Dense(features=1024)
+        self.linear3 = nn.Dense(features=512)
+        self.linear4 = nn.Dense(features=256)
         # The last layer will output the mean and logstd
         self.linear5 = nn.Dense(features=self.out_dims)
         
