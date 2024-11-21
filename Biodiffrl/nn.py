@@ -19,16 +19,20 @@ class Controller_NN(nn.Module):
         # The last layer will output the mean and logstd
         self.linear5 = nn.Dense(features=self.out_dims*2)
         
-    
+    @nn.compact
     def __call__(self, x, key):
         x = self.linear1(x)
-        x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear2(x)
-        x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear3(x)
-        x = nn.relu(x)
-        # x = self.linear4(x)
-        # x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
+        x = self.linear4(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear5(x)
         # The last layer of the neural requires samping
         mean = x[:self.out_dims]
@@ -63,16 +67,20 @@ class Critic_NN(nn.Module):
         # The last layer will output the mean and logstd
         self.linear5 = nn.Dense(features=self.out_dims)
         
-    
+    @nn.compact
     def __call__(self, x):
         x = self.linear1(x)
-        x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear2(x)
-        x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear3(x)
-        x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear4(x)
-        x = nn.relu(x)
+        x = nn.elu(x)
+        x = nn.LayerNorm()(x)
         x = self.linear5(x)
         # The last layer of the neural requires samping
         return -nn.relu(x)
