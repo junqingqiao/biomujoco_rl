@@ -1,0 +1,97 @@
+<mujoco model="biomtu_test_simple">
+<option gravity="0 0 -9.81" integrator="RK4" timestep="0.005" solver="Newton" iterations="1" ls_iterations="4"/>
+<default>
+    <geom type="capsule" size=".01" rgba=".9 .7 .1 1"/>
+    <site rgba=".9 .9 .9 1"/>
+    <default class="bones">
+        <geom type="capsule" density="20" size=".01" rgba=".7 .7 .7 1" contype="0" conaffinity="0"/>
+    </default>
+    <default class="joint">
+        <geom type="cylinder" fromto="0 .015 0  0 -.015 0" size=".03" rgba=".3 .9 .3 .4" contype="0" conaffinity="0"/>
+    </default>
+</default>
+<visual>
+  <global offwidth="1920" offheight="1080"/>
+</visual>
+<asset>
+    <texture type="skybox" builtin="gradient" rgb1=".3 .5 .7" rgb2="0 0 0" width="32" height="512"/>
+    <texture name="body" type="cube" builtin="flat" mark="cross" width="128" height="128" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>
+    <material name="body" texture="body" texuniform="true" rgba="0.8 0.6 .4 1"/>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
+    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+</asset>
+
+<worldbody>
+    <light pos="0 0 1"/>
+
+    <body name="main" pos="0 0 0.5">
+        <geom type="plane" pos="0 0 -0.021" size=".2 .2 0.01" rgba=".2 .2 .5 1"/>
+        <site name="s1" pos="-0.021 0 -0.02"/>
+        <body name="skeleton" pos="0 0 0">
+            <joint axis="0 1 0" type="hinge" damping="0.0" pos='0 0 0' range="-60 60" limited="true"/>
+            <geom name="joint1" class="joint" size="0.02"/>
+            
+            <geom name="bone1" class="bones"  fromto="0.0 0 0  0 0 0.2"/>
+            <site name="s2" pos="-.032 0 0.19"/>
+            <site name="side1" pos="-.032 0 0.20"/>
+        
+            <body pos="0 0 .2">
+                <joint axis="0 1 0" type="hinge" damping="0.0" pos='0 0 0' range="20 80" limited="true"/>
+                <geom name="joint2" class="joint"/>
+                <geom name="bone2" class="bones"  fromto="0.0 0 0  0 0 0.2"/>
+                <site name="s3" pos="-.032 0 0.01"/>
+                <site name="s4" pos="-.02 0 0.2"/>
+                <site name="side2" pos="-0.032 0 -0.00"/>
+                <body name="end_body1" pos="0 0 0.21">
+                    <geom name="end" type="sphere" size="0.03" pos="0 0 0" density="1500" contype="1"/>
+                    <!-- <joint axis="0 0 1" type="slide"/> -->
+                </body>
+            </body>
+        </body>
+    </body>
+    <body name="end_body2" pos="0.03 0 0.92">
+        <joint axis="0 0 1" type="slide"/>
+        <geom name="end2" type="sphere" density="200" size="0.02" pos="0 0 0" contype="2" rgba="1 0 0 .1"/>
+    </body>
+
+</worldbody>
+
+<equality>
+    <connect body1="end_body1" body2="end_body2" anchor="0 0 0"/>
+</equality>
+
+<contact>
+        <exclude body1="end_body1" body2="end_body2" />
+</contact>
+
+<biomtu>
+    <spatial name="mtu_1" width=".003" tendon_slack_l="0.20" max_isometric_force="1000"
+        max_contraction_velocity="10.0" optimal_fiber_length="0.20" 
+        optimal_pennation_angle="0.052360" rgba=".95 .3 .3 1"
+        virtual_mass="1">
+        <site site="s1"/>
+        <!-- <geom geom="joint1" sidesite="side1"/> -->
+        <site site="s2"/>
+        <site site="side1"/>
+        <site site="side2"/>
+        <!-- <geom geom="joint2" sidesite="side2"/> -->
+        <site site="s3"/>
+        <site site="s4"/>
+    </spatial>
+</biomtu>
+
+<tendon>
+    <!-- <spatial name="tendon0"  springlength="0.3" stiffness="300" limited="false" width=".003" rgba=".95 .3 .3 1"> -->
+    <spatial name="tendon0"  springlength="0.3" stiffness="0" limited="false" width=".003" rgba=".95 .3 .3 1">
+        <site site="s1"/>
+        <!-- <geom geom="joint1" sidesite="side1"/> -->
+        <site site="s2"/>
+        <site site="side1"/>
+        <site site="side2"/>
+        <!-- <geom geom="joint2" sidesite="side2"/> -->
+        <site site="s3"/>
+        <site site="s4"/>
+    </spatial>
+</tendon>
+
+</mujoco>
